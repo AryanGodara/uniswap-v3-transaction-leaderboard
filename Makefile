@@ -21,59 +21,59 @@ install: install-backend install-frontend
 
 install-backend:
 	@echo "📦 Installing backend dependencies..."
-	cd backend && cargo fetch
+	cd uniswap-v3-backend && cargo fetch
 
 install-frontend:
 	@echo "📦 Installing frontend dependencies..."
-	cd frontend && npm install
+	cd leaderboard-frontend && npm install
 
 # Build targets
 build: build-backend build-frontend
 
 build-backend:
 	@echo "🔨 Building backend..."
-	cd backend && cargo build --release
+	cd uniswap-v3-backend && cargo build --release
 
 build-frontend: 
 	@echo "🔨 Building frontend..."
-	cd frontend && npm run build
+	cd leaderboard-frontend && npm run build
 
 # Linting
 lint: lint-backend lint-frontend
 
 lint-backend:
 	@echo "🔍 Linting backend..."
-	cd backend && cargo clippy -- -D warnings
-	cd backend && cargo fmt --check
+	cd uniswap-v3-backend && cargo clippy -- -D warnings
+	cd uniswap-v3-backend && cargo fmt --check
 
 lint-frontend:
 	@echo "🔍 Linting frontend..."
-	cd frontend && npm run lint
+	cd leaderboard-frontend && npm run lint
 
 # Start services
 start-backend:
 	@echo "🚀 Starting backend server on port 3001..."
-	cd backend && cargo run --release -- --server --port 3001
+	cd uniswap-v3-backend && cargo run --release -- --server --port 3001
 
 start-frontend:
 	@echo "🌐 Starting frontend on port 3000..."
-	cd frontend && npm run dev
+	cd leaderboard-frontend && npm run dev
 
 # Start both services (backend first, then frontend)
 start:
 	@echo "🚀 Starting Uniswap V3 Leaderboard..."
 	@echo "📡 Starting backend server on port 3001..."
-	cd backend && cargo run --release -- --server --port 3001 & \
+	cd uniswap-v3-backend && cargo run --release -- --server --port 3001 & \
 	echo $$! > backend.pid && \
 	sleep 5 && \
 	echo "🌐 Starting frontend on port 3000..." && \
-	cd frontend && npm run dev
+	cd leaderboard-frontend && npm run dev
 
 # Clean build artifacts
 clean:
 	@echo "🧹 Cleaning build artifacts..."
-	cd backend && cargo clean
-	cd frontend && npm run clean 2>/dev/null || rm -rf .next node_modules/.cache
+	cd uniswap-v3-backend && cargo clean
+	cd leaderboard-frontend && npm run clean 2>/dev/null || rm -rf .next node_modules/.cache
 	rm -f backend.pid
 
 # Stop running services
