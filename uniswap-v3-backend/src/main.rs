@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use clap::Parser;
 use reqwest::Client;
 use rust_decimal::Decimal;
@@ -142,7 +142,7 @@ impl UniswapClient {
                 // Using the correct Uniswap v3 subgraph ID - requires API key for production use
                 "https://gateway.thegraph.com/api/subgraphs/id/5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV".to_string()
             });
-        
+
         Self {
             client: Client::new(),
             subgraph_url,
@@ -158,7 +158,7 @@ impl UniswapClient {
         first: usize,
     ) -> Result<Vec<Swap>> {
         let token_lower = token_address.to_lowercase();
-        
+
         // Use a simple, working query structure
         let query = r#"
             query GetSwaps($skip: Int!, $first: Int!) {
@@ -197,7 +197,8 @@ impl UniswapClient {
                     }
                 }
             }
-            "#.to_string();
+            "#
+        .to_string();
 
         let variables = serde_json::json!({
             "skip": skip,
@@ -218,7 +219,7 @@ impl UniswapClient {
         if let Some(errors) = graphql_response.errors {
             let error_messages: Vec<&str> = errors.iter().map(|e| e.message.as_str()).collect();
             let combined_errors = error_messages.join(", ");
-            
+
             // Provide helpful guidance for common errors
             if combined_errors.contains("auth") || combined_errors.contains("authorization") {
                 return Err(anyhow!(
@@ -229,7 +230,9 @@ impl UniswapClient {
                     2. Set the environment variable:\n\
                        export UNISWAP_SUBGRAPH_URL=\"https://gateway.thegraph.com/api/YOUR_API_KEY/subgraphs/id/5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV\"\n\
                     3. Or try demo mode: {} --demo --limit 10",
-                    std::env::args().next().unwrap_or("uni-leaderboard".to_string())
+                    std::env::args()
+                        .next()
+                        .unwrap_or("uni-leaderboard".to_string())
                 ));
             } else if combined_errors.contains("subgraph not found") {
                 return Err(anyhow!(
@@ -241,7 +244,9 @@ impl UniswapClient {
                     3. Or try demo mode: {} --demo --limit 10\n\
                     \n\
                     Original error: {}",
-                    std::env::args().next().unwrap_or("uni-leaderboard".to_string()),
+                    std::env::args()
+                        .next()
+                        .unwrap_or("uni-leaderboard".to_string()),
                     combined_errors
                 ));
             } else {
@@ -252,7 +257,9 @@ impl UniswapClient {
         match graphql_response.data {
             Some(data) => {
                 // Filter swaps to only include those involving our target token
-                let filtered_swaps: Vec<Swap> = data.swaps.into_iter()
+                let filtered_swaps: Vec<Swap> = data
+                    .swaps
+                    .into_iter()
                     .filter(|swap| {
                         let token0_id = swap.pool.token_0.id.to_lowercase();
                         let token1_id = swap.pool.token_1.id.to_lowercase();
@@ -261,7 +268,8 @@ impl UniswapClient {
                     .filter(|swap| {
                         // Apply block range filtering if specified
                         if let Ok(block_num) = swap.transaction.block_number.parse::<u64>() {
-                            let in_start_range = start_block.map_or(true, |start| block_num >= start);
+                            let in_start_range =
+                                start_block.map_or(true, |start| block_num >= start);
                             let in_end_range = end_block.map_or(true, |end| block_num <= end);
                             in_start_range && in_end_range
                         } else {
@@ -270,7 +278,7 @@ impl UniswapClient {
                     })
                     .collect();
                 Ok(filtered_swaps)
-            },
+            }
             None => Ok(vec![]),
         }
     }
@@ -296,8 +304,12 @@ impl UniswapClient {
                 break;
             }
 
-            println!("Fetched {} swaps (total: {})", swaps.len(), all_swaps.len() + swaps.len());
-            
+            println!(
+                "Fetched {} swaps (total: {})",
+                swaps.len(),
+                all_swaps.len() + swaps.len()
+            );
+
             let batch_len = swaps.len();
             all_swaps.extend(swaps);
 
@@ -346,7 +358,10 @@ fn determine_trade_type(swap: &Swap, target_token: &str) -> Result<(bool, Decima
     }
 }
 
-fn aggregate_trader_stats(swaps: &[Swap], target_token: &str) -> Result<HashMap<String, TraderStats>> {
+fn aggregate_trader_stats(
+    swaps: &[Swap],
+    target_token: &str,
+) -> Result<HashMap<String, TraderStats>> {
     let mut trader_stats: HashMap<String, TraderStats> = HashMap::new();
 
     println!("Processing {} swaps...", swaps.len());
@@ -360,7 +375,7 @@ fn aggregate_trader_stats(swaps: &[Swap], target_token: &str) -> Result<HashMap<
             Ok((is_buy, token_amount, usd_amount)) => {
                 // Use sender as the trader address (the one initiating the swap)
                 let trader_address = swap.sender.clone();
-                
+
                 let stats = trader_stats
                     .entry(trader_address.clone())
                     .or_insert_with(|| TraderStats::new(trader_address));
@@ -382,27 +397,43 @@ fn aggregate_trader_stats(swaps: &[Swap], target_token: &str) -> Result<HashMap<
         }
     }
 
-    println!("Processed all swaps. Found {} unique traders.", trader_stats.len());
+    println!(
+        "Processed all swaps. Found {} unique traders.",
+        trader_stats.len()
+    );
     Ok(trader_stats)
 }
 
 fn print_leaderboard(trader_stats: HashMap<String, TraderStats>, limit: usize) {
     let mut traders: Vec<TraderStats> = trader_stats.into_values().collect();
-    
+
     // Sort by total USD volume (descending)
     traders.sort_by(|a, b| b.total_volume_usd().cmp(&a.total_volume_usd()));
-    
+
     println!("\n🏆 UNISWAP V3 TRADER LEADERBOARD 🏆");
-    println!("═══════════════════════════════════════════════════════════════════════════════════════");
+    println!(
+        "═══════════════════════════════════════════════════════════════════════════════════════"
+    );
     println!(
         "{:<4} {:<42} {:<8} {:<8} {:<15} {:<15} {:<15}",
-        "Rank", "Trader Address", "Buys", "Sells", "Total Vol USD", "Net Token Vol", "Buy/Sell Ratio"
+        "Rank",
+        "Trader Address",
+        "Buys",
+        "Sells",
+        "Total Vol USD",
+        "Net Token Vol",
+        "Buy/Sell Ratio"
     );
-    println!("─────────────────────────────────────────────────────────────────────────────────────────");
+    println!(
+        "─────────────────────────────────────────────────────────────────────────────────────────"
+    );
 
     for (i, trader) in traders.iter().take(limit).enumerate() {
         let buy_sell_ratio = if trader.total_sells > 0 {
-            format!("{:.2}", trader.total_buys as f64 / trader.total_sells as f64)
+            format!(
+                "{:.2}",
+                trader.total_buys as f64 / trader.total_sells as f64
+            )
         } else if trader.total_buys > 0 {
             "∞".to_string()
         } else {
@@ -428,8 +459,10 @@ fn print_leaderboard(trader_stats: HashMap<String, TraderStats>, limit: usize) {
         );
     }
 
-    println!("═══════════════════════════════════════════════════════════════════════════════════════");
-    
+    println!(
+        "═══════════════════════════════════════════════════════════════════════════════════════"
+    );
+
     // Summary statistics
     let total_traders = traders.len();
     let total_volume: Decimal = traders.iter().map(|t| t.total_volume_usd()).sum();
@@ -442,8 +475,14 @@ fn print_leaderboard(trader_stats: HashMap<String, TraderStats>, limit: usize) {
     println!("Total Volume (USD): ${:.2}", total_volume);
     println!("Total Buy Transactions: {}", total_buys);
     println!("Total Sell Transactions: {}", total_sells);
-    println!("Average Volume per Trader: ${:.2}", 
-        if total_traders > 0 { total_volume / Decimal::from(total_traders) } else { Decimal::ZERO });
+    println!(
+        "Average Volume per Trader: ${:.2}",
+        if total_traders > 0 {
+            total_volume / Decimal::from(total_traders)
+        } else {
+            Decimal::ZERO
+        }
+    );
 }
 
 fn get_default_start_block() -> u64 {
@@ -456,17 +495,81 @@ fn get_default_start_block() -> u64 {
 
 fn generate_demo_data() -> HashMap<String, TraderStats> {
     let mut trader_stats = HashMap::new();
-    
+
     // Sample trader data to demonstrate the leaderboard functionality
     let demo_traders = vec![
-        ("0x1234567890123456789012345678901234567890", 45, 32, "1234.5678", "987.1234", "125000.50", "98000.25"),
-        ("0x2345678901234567890123456789012345678901", 23, 41, "567.8901", "789.2345", "87500.75", "95000.00"),
-        ("0x3456789012345678901234567890123456789012", 67, 28, "2345.6789", "456.7890", "156000.25", "45000.80"),
-        ("0x4567890123456789012345678901234567890123", 12, 18, "345.6789", "234.5678", "34500.00", "28900.50"),
-        ("0x5678901234567890123456789012345678901234", 89, 76, "3456.7890", "2345.6789", "245000.75", "198000.25"),
-        ("0x6789012345678901234567890123456789012345", 34, 56, "1234.5678", "1567.8901", "89000.50", "112000.75"),
-        ("0x7890123456789012345678901234567890123456", 78, 43, "2789.0123", "1234.5678", "189000.25", "87500.50"),
-        ("0x8901234567890123456789012345678901234567", 25, 67, "567.8901", "1890.1234", "56000.75", "145000.25"),
+        (
+            "0x1234567890123456789012345678901234567890",
+            45,
+            32,
+            "1234.5678",
+            "987.1234",
+            "125000.50",
+            "98000.25",
+        ),
+        (
+            "0x2345678901234567890123456789012345678901",
+            23,
+            41,
+            "567.8901",
+            "789.2345",
+            "87500.75",
+            "95000.00",
+        ),
+        (
+            "0x3456789012345678901234567890123456789012",
+            67,
+            28,
+            "2345.6789",
+            "456.7890",
+            "156000.25",
+            "45000.80",
+        ),
+        (
+            "0x4567890123456789012345678901234567890123",
+            12,
+            18,
+            "345.6789",
+            "234.5678",
+            "34500.00",
+            "28900.50",
+        ),
+        (
+            "0x5678901234567890123456789012345678901234",
+            89,
+            76,
+            "3456.7890",
+            "2345.6789",
+            "245000.75",
+            "198000.25",
+        ),
+        (
+            "0x6789012345678901234567890123456789012345",
+            34,
+            56,
+            "1234.5678",
+            "1567.8901",
+            "89000.50",
+            "112000.75",
+        ),
+        (
+            "0x7890123456789012345678901234567890123456",
+            78,
+            43,
+            "2789.0123",
+            "1234.5678",
+            "189000.25",
+            "87500.50",
+        ),
+        (
+            "0x8901234567890123456789012345678901234567",
+            25,
+            67,
+            "567.8901",
+            "1890.1234",
+            "56000.75",
+            "145000.25",
+        ),
     ];
 
     for (address, buys, sells, buy_vol, sell_vol, buy_usd, sell_usd) in demo_traders {
@@ -477,7 +580,7 @@ fn generate_demo_data() -> HashMap<String, TraderStats> {
         stats.total_sell_volume_token = sell_vol.parse().unwrap();
         stats.total_buy_volume_usd = buy_usd.parse().unwrap();
         stats.total_sell_volume_usd = sell_usd.parse().unwrap();
-        
+
         trader_stats.insert(address.to_string(), stats);
     }
 
@@ -487,7 +590,7 @@ fn generate_demo_data() -> HashMap<String, TraderStats> {
 #[tokio::main]
 async fn main() -> Result<()> {
     dotenv::dotenv().ok();
-    
+
     let args = Args::parse();
 
     // Validate arguments based on mode
@@ -495,11 +598,15 @@ async fn main() -> Result<()> {
         match &args.token {
             Some(token) => {
                 if !token.starts_with("0x") || token.len() != 42 {
-                    return Err(anyhow!("Invalid token address format. Expected 42-character hex string starting with '0x'"));
+                    return Err(anyhow!(
+                        "Invalid token address format. Expected 42-character hex string starting with '0x'"
+                    ));
                 }
             }
             None => {
-                return Err(anyhow!("Token address is required when not in demo mode. Use --token <ADDRESS> or --demo for sample data."));
+                return Err(anyhow!(
+                    "Token address is required when not in demo mode. Use --token <ADDRESS> or --demo for sample data."
+                ));
             }
         }
     }
@@ -530,7 +637,7 @@ async fn main() -> Result<()> {
     } else {
         let client = UniswapClient::new();
         let token = args.token.as_ref().unwrap(); // Safe because we validated above
-        
+
         let swaps = client
             .fetch_all_swaps(token, Some(start_block), end_block)
             .await?;
@@ -544,7 +651,12 @@ async fn main() -> Result<()> {
             println!("   • Token address is incorrect or not traded on Uniswap v3");
             println!();
             println!("🎭 Try running with --demo flag to see sample output:");
-            println!("   {} --demo --limit 5", std::env::args().next().unwrap_or("uni-leaderboard".to_string()));
+            println!(
+                "   {} --demo --limit 5",
+                std::env::args()
+                    .next()
+                    .unwrap_or("uni-leaderboard".to_string())
+            );
             return Ok(());
         }
 
