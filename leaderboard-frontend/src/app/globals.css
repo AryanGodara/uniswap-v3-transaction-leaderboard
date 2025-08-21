@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+:root {
+  /* RetroUI Color System */
+  --background: #f5f5f5;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #000000;
+  --muted: #f5f5f5;
+  --muted-foreground: #6b7280;
+  --accent: #f5f5f5;
+  --accent-foreground: #000000;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #000000;
+  --input: #ffffff;
+  --ring: #000000;
+  --radius: 0.375rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius: var(--radius);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* RetroUI Base Styles */
+* {
+  border-color: var(--border);
+}
+
+/* RetroUI Neobrutalist shadows and borders */
+.retro-shadow {
+  box-shadow: 4px 4px 0px 0px #000000;
+  transition: box-shadow 0.15s ease-out;
+}
+
+.retro-shadow-sm {
+  box-shadow: 2px 2px 0px 0px #000000;
+  transition: box-shadow 0.15s ease-out;
+}
+
+.retro-shadow-lg {
+  box-shadow: 8px 8px 0px 0px #000000;
+  transition: box-shadow 0.15s ease-out;
+}
+
+.retro-border {
+  border: 2px solid #000000;
+}
+
+/* RetroUI Button Animation Classes */
+.retro-btn-bounce:hover {
+  animation: retroBounce 0.3s ease-in-out;
+}
+
+.retro-btn-shake:hover {
+  animation: retroShake 0.5s ease-in-out;
+}
+
+.retro-btn-pulse:hover {
+  animation: retroPulse 0.6s ease-in-out infinite;
+}
+
+/* RetroUI Keyframe Animations */
+@keyframes retroBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes retroShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+@keyframes retroPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* RetroUI Interactive Elements */
+.retro-interactive {
+  cursor: pointer;
+  transition: all 0.15s ease-out;
+}
+
+.retro-interactive:hover {
+  transform: translateY(-1px);
+  box-shadow: 6px 6px 0px 0px #000000;
+}
+
+.retro-interactive:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+/* RetroUI Card Hover Effects */
+.retro-card-hover {
+  transition: all 0.2s ease-out;
+}
+
+.retro-card-hover:hover {
+  transform: translateY(-2px) rotate(0.5deg);
+  box-shadow: 6px 8px 0px 0px #000000;
+}
