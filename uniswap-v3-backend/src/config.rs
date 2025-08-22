@@ -66,7 +66,7 @@ impl NetworkConfig {
                 name: "Optimism",
             }),
             "base" => Ok(Self {
-                subgraph_id: "43Hwfi3dJSoGpyas9VkK2E9DiKpweh7jijkRBhWGwHJK",
+                subgraph_id: "HMuAwufqZ1YCRmzL2SfHTVkzZovC9VL2UAKhjvRqKiR1",
                 default_start_block_offset: 432_000, // ~30 days for Base
                 name: "Base",
             }),
