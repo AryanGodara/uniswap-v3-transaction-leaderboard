@@ -8,6 +8,8 @@ pub struct Config {
     pub default_limit: usize,
     pub target_swaps: usize,
     pub batch_size: usize,
+    pub allowed_origins: Vec<String>,
+    pub server_host: String,
 }
 
 impl Config {
@@ -31,6 +33,13 @@ impl Config {
                 .unwrap_or_else(|_| "1000".to_string())
                 .parse()
                 .map_err(|_| anyhow!("Invalid BATCH_SIZE value"))?,
+            allowed_origins: env::var("ALLOWED_ORIGINS")
+                .unwrap_or_else(|_| "http://localhost:3000".to_string())
+                .split(',')
+                .map(|s| s.trim().to_string())
+                .collect(),
+            server_host: env::var("SERVER_HOST")
+                .unwrap_or_else(|_| "127.0.0.1".to_string()),
         })
     }
 }
