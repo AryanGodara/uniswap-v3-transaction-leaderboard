@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search, TrendingUp, TrendingDown, Users, DollarSign, Activity } from 'lucide-react';
-import { LeaderboardData, LeaderboardParams } from '@/types';
+import type { LeaderboardData, LeaderboardParams } from '@/types';
 
 // Import Firebase modules
 import { initializeApp } from "firebase/app";
@@ -15,12 +15,12 @@ import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyC0PbOSgDHKuE3o2Z85E9gZARwJq8uVCKU",
-  authDomain: "uniswap-db.firebaseapp.com",
-  projectId: "uniswap-db",
-  storageBucket: "uniswap-db.firebasestorage.app",
-  messagingSenderId: "316080839635",
-  appId: "1:316080839635:web:e36be97751985c504b2d26"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
 // Initialize Firebase and Firestore
@@ -101,10 +101,11 @@ export default function Leaderboard() {
   };
 
   const formatNumber = (num: string | number) => {
-    const value = typeof num === 'string' ? parseFloat(num) : num;
+    const value = typeof num === 'string' ? Number.parseFloat(num) : num;
     if (value >= 1000000) {
       return `$${(value / 1000000).toFixed(2)}M`;
-    } else if (value >= 1000) {
+    }
+    if (value >= 1000) {
       return `$${(value / 1000).toFixed(2)}K`;
     }
     return `$${value.toFixed(2)}`;

@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use crate::client::UniswapClient;
 use crate::types::{
-    LeaderboardRequest, LeaderboardResponse, SummaryStats, TraderStats, TraderStatsAPI,
+    LeaderboardRequest, LeaderboardResponse, SummaryStats, TraderStatsAPI,
 };
 use crate::utils::{aggregate_trader_stats, generate_demo_data, get_default_start_block};
 
