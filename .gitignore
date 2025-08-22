@@ -1,2 +1,4 @@
 # Ignore build files
 uniswap-v3-backend/target
+
+uniswap-v3-backend/.env
