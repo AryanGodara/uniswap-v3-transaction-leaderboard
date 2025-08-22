@@ -1,12 +1,11 @@
-use axum::{
-    http::StatusCode,
-    response::Json,
-};
+use axum::{http::StatusCode, response::Json};
 use rust_decimal::Decimal;
 use std::collections::HashMap;
 
 use crate::client::UniswapClient;
-use crate::types::{LeaderboardRequest, LeaderboardResponse, TraderStats, TraderStatsAPI, SummaryStats};
+use crate::types::{
+    LeaderboardRequest, LeaderboardResponse, SummaryStats, TraderStats, TraderStatsAPI,
+};
 use crate::utils::{aggregate_trader_stats, generate_demo_data, get_default_start_block};
 
 pub async fn health_check() -> &'static str {

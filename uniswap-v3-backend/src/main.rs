@@ -1,9 +1,9 @@
-mod config;
-mod types;
 mod client;
-mod utils;
+mod config;
 mod handlers;
 mod server;
+mod types;
+mod utils;
 
 use anyhow::{Result, anyhow};
 use clap::Parser;
@@ -11,7 +11,9 @@ use clap::Parser;
 use crate::client::UniswapClient;
 use crate::config::Config;
 use crate::server::run_server;
-use crate::utils::{aggregate_trader_stats, generate_demo_data, get_default_start_block, print_leaderboard};
+use crate::utils::{
+    aggregate_trader_stats, generate_demo_data, get_default_start_block, print_leaderboard,
+};
 
 #[derive(Parser, Debug)]
 #[command(name = "uni-leaderboard")]
@@ -164,4 +166,3 @@ mod tests {
         assert!(config.default_limit > 0);
     }
 }
-

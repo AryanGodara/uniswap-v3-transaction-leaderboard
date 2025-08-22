@@ -3,7 +3,7 @@ use reqwest::Client;
 use std::env;
 
 use crate::config::{Config, NetworkConfig};
-use crate::types::{GraphQLQuery, GraphQLResponse, SwapsResponse, Swap};
+use crate::types::{GraphQLQuery, GraphQLResponse, Swap, SwapsResponse};
 
 pub struct UniswapClient {
     client: Client,
@@ -20,8 +20,7 @@ impl UniswapClient {
         let subgraph_url = env::var("UNISWAP_SUBGRAPH_URL").unwrap_or_else(|_| {
             format!(
                 "https://gateway.thegraph.com/api/{}/subgraphs/id/{}",
-                config.graph_api_key,
-                network_config.subgraph_id
+                config.graph_api_key, network_config.subgraph_id
             )
         });
 
